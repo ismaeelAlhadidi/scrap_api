@@ -1,0 +1,5 @@
+build/
+jsModules/node_modules
+webContent/storage
+.setting/
+.project

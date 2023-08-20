@@ -1,0 +1,138 @@
+CREATE DATABASE scrap;
+USE scrap;
+CREATE TABLE governorates (
+	name VARCHAR(255) PRIMARY KEY
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CREATE TABLE users (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	email VARCHAR(255) UNIQUE,
+	phone VARCHAR(15) UNIQUE,
+	is_phone_visible BOOLEAN DEFAULT FALSE,
+	name VARCHAR(255),
+	governorate_name VARCHAR(255),
+	region_name VARCHAR(255),
+	password VARCHAR(255),
+	password_salt VARCHAR(255),
+	email_verified BOOLEAN DEFAULT FALSE,
+	phone_verified BOOLEAN DEFAULT FALSE,
+	sent_code VARCHAR(255) DEFAULT NULL,
+	sent_time DATETIME DEFAULT NULL,
+	verification_type VARCHAR(255),
+	is_active BOOLEAN DEFAULT FALSE,
+	birthday date,
+	sex VARCHAR(255),
+	profession VARCHAR(255),
+	get_notifications_on_comments BOOLEAN DEFAULT TRUE,
+	get_notifications_on_messages BOOLEAN DEFAULT TRUE,
+	get_notifications_on_your_ads BOOLEAN DEFAULT TRUE,
+	get_notifications_on_favorites BOOLEAN DEFAULT TRUE,
+	get_notifications_on_scrapi BOOLEAN DEFAULT TRUE,
+	get_notifications_on_scrap BOOLEAN DEFAULT TRUE,
+	FOREIGN KEY (governorate_name) REFERENCES governorates(name)
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CREATE TABLE categories (
+	name VARCHAR(255) PRIMARY KEY
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CREATE TABLE posts (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	category_name VARCHAR(255),
+	governorate_name VARCHAR(255),
+	region_name VARCHAR(255),
+	title VARCHAR(255),
+	description TEXT,
+	price FLOAT(9,2),
+	quantity_or_time_of_use VARCHAR(255),
+	user_id INT,
+	is_phone_visible BOOLEAN DEFAULT FALSE,
+	type VARCHAR(255),
+	negotiation VARCHAR(255),
+	selling VARCHAR(255),
+	exchange_title VARCHAR(255),
+	exchange_description TEXT,
+	with_comments BOOLEAN DEFAULT TRUE,
+	is_visible BOOLEAN DEFAULT TRUE,
+	time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (governorate_name) REFERENCES governorates(name),
+	FOREIGN KEY (category_name) REFERENCES categories(name),
+	FOREIGN KEY (user_id) REFERENCES users(id)
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CREATE TABLE images (
+	post_id INT,
+	is_exchange BOOLEAN DEFAULT FALSE,
+	src VARCHAR(255) NOT NULL,
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+CREATE TABLE comments (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	content TEXT,
+	user_id int,
+	post_id int,
+	time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id)
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE favorites (
+	user_id int,
+	post_id int,
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE reports (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	user_id int,
+	post_id int,
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE notifications (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	user_id int,
+	content VARCHAR(255),
+	post_id int,
+	comment_id int,
+	opened BOOLEAN DEFAULT FALSE,
+	readed BOOLEAN DEFAULT FALSE,
+	time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	type VARCHAR(255),
+	FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+	FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE admins (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	email VARCHAR(255) UNIQUE,
+	password VARCHAR(255)
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE TABLE messages (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	sender_id int,
+	receiver_id int,
+	content TEXT,
+	time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	readed BOOLEAN DEFAULT FALSE,
+	FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+// posts.type 
+// request .. sell .. exchange 
+// negotiation 
+// negotiable .. not_negotiable .. auction .. depend_on_quality 
+// selling 
+// for_sell .. not_for_sell .. with_difference_price 
+
+// notifications.type 
+// comment_on_your_post 
+// comment_on_your_favorite_post 
+// message 
+
+
+insert into governorates (name) values("اربد"), ("البلقاء"), ("جرش"), ("الزرقاء"), ("الطفيلة"), ("عجلون"), ("العقبة"), ("عمان"), ("الكرك"), ("مادبا"), ("معان"), ("المفرق");
+
+insert into categories (name) values("سيارات ودراجات مستعملة"),("اثاث مستعمل"),("كهربائيات مستعملة"),("ملابس مستعملة"),
+("الكترونيات مستعملة"),("مستلزمات مستعملة"),("قطع سيارات مستعملة"),("معدات مستعملة"),("مستعملة اخرى"),("جميع الخرداوات");
